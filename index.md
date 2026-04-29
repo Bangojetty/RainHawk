@@ -13,4 +13,5 @@ Root index for the RainHawk knowledge base. **Always start here** when crawling 
 - [[rainhawk-state]] — per-session summaries appended by the daemon
 
 ## Experimental Notes
-*(empty — populate from the meta `vault/` as findings stabilize into reference material)*
+- `featuresum/` — per-feature retrospectives written by the worker on each `[[RAINHAWK::FEATURE_COMPLETE]]`
+- *(meta `vault/` will be populated as findings stabilize into reference material)*
