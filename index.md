@@ -4,12 +4,13 @@ Root index for the RainHawk knowledge base. **Always start here** when crawling 
 
 ## Design & Architecture
 - [[PRD]] — full architecture, decisions locked in, scope (canonical design doc)
+- [[instructions]] — the method prompt fed into the long-running session (the experimental variable)
 
 ## Project State
 - [[next-steps]] — current to-do list and handoff notes for fresh sessions
 
 ## Operations
-*(empty — populate when the daemon is running: deploy notes, runbooks, recovery procedures)*
+- [[rainhawk-state]] — per-session summaries appended by the daemon
 
 ## Experimental Notes
 *(empty — populate from the meta `vault/` as findings stabilize into reference material)*
