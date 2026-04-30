@@ -1,0 +1,33 @@
+{
+    "_note": "Two adults (one male with white tail tip, one female with scarred ear) and two cubs (one with a white paw, one with an ear tuft) visiting a small garden over one night. Coordinates are metres from a fixed reference point in the garden.",
+    "max_speed_mps": 13.0,
+    "sightings": [
+        {"id": "s01", "t_min":   0, "x":  0.0, "y":  0.0,
+         "sex": "male",   "age": "adult", "size": "medium",
+         "markings": ["white-tail-tip"]},
+        {"id": "s02", "t_min":   3, "x": 12.0, "y":  4.0,
+         "sex": "male",   "age": "adult",
+         "markings": ["white-tail-tip"]},
+        {"id": "s03", "t_min":   5, "x": 30.0, "y": 18.0,
+         "sex": "female", "age": "adult", "size": "medium",
+         "markings": ["scar-left-ear"]},
+        {"id": "s04", "t_min":  17, "x":  5.0, "y":  2.0,
+         "age": "cub", "size": "small",
+         "markings": ["white-paw"]},
+        {"id": "s05", "t_min":  19, "x":  6.5, "y":  2.5,
+         "age": "cub", "size": "small",
+         "markings": ["ear-tuft"]},
+        {"id": "s06", "t_min":  25, "x": 22.0, "y": 11.0,
+         "age": "cub", "size": "small",
+         "markings": ["white-paw"]},
+        {"id": "s07", "t_min":  40, "x": 31.0, "y": 19.0,
+         "sex": "female",
+         "markings": ["scar-left-ear"]},
+        {"id": "s08", "t_min":  60, "x":  1.0, "y":  0.5,
+         "sex": "male",   "age": "adult",
+         "markings": ["white-tail-tip"]},
+        {"id": "s09", "t_min":  80, "x":  4.0, "y":  3.0,
+         "age": "cub",
+         "markings": ["ear-tuft"]}
+    ]
+}

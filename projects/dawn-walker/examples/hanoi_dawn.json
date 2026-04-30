@@ -1,0 +1,73 @@
+{
+    "start": {
+        "label": "Hostel — Old Quarter",
+        "lat": 21.0341,
+        "lon": 105.8505,
+        "time": "02:30"
+    },
+    "walking_kph": 4.5,
+    "sequence": [
+        "flower-market",
+        "ceremony",
+        "produce-market",
+        "exercise",
+        "photo",
+        "breakfast"
+    ],
+    "pois": [
+        {
+            "name": "Quang Ba Flower Market",
+            "category": "flower-market",
+            "lat": 21.0626,
+            "lon": 105.8225,
+            "dwell": 30,
+            "open": "22:00",
+            "close": "05:00"
+        },
+        {
+            "name": "Mausoleum Flag Ceremony",
+            "category": "ceremony",
+            "lat": 21.0368,
+            "lon": 105.8345,
+            "dwell": 15,
+            "open": "05:50",
+            "close": "06:30"
+        },
+        {
+            "name": "Dong Xuan Market",
+            "category": "produce-market",
+            "lat": 21.0383,
+            "lon": 105.8497,
+            "dwell": 40,
+            "open": "06:00",
+            "close": "11:00"
+        },
+        {
+            "name": "Ly Thai To Park — Tai Chi",
+            "category": "exercise",
+            "lat": 21.0299,
+            "lon": 105.8527,
+            "dwell": 45,
+            "open": "05:30",
+            "close": "09:00"
+        },
+        {
+            "name": "Hoan Kiem Lake — Sunrise Photo",
+            "category": "photo",
+            "lat": 21.0287,
+            "lon": 105.8524,
+            "dwell": 20,
+            "open": "05:00",
+            "close": "08:30"
+        },
+        {
+            "name": "Pho Gia Truyen — Old Quarter",
+            "category": "breakfast",
+            "lat": 21.0353,
+            "lon": 105.8501,
+            "dwell": 30,
+            "open": "06:00",
+            "close": "10:30"
+        }
+    ]
+}
