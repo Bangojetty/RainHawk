@@ -22,7 +22,8 @@ from runner.session import (
     save_state,
 )
 
-ITERATION_CAP = 20
+ITERATION_CAP = 20  # per-feature: SMS + halt if the worker spins this long without feature_complete
+FEATURE_CAP = 20    # per-run:     clean halt (no SMS) after this many features completed
 INSTRUCTIONS_PATH = REPO_ROOT / "instructions.md"
 LOG_DIR = REPO_ROOT / "logs"
 
@@ -53,11 +54,13 @@ async def run() -> None:
     instructions = INSTRUCTIONS_PATH.read_text(encoding="utf-8")
     state = load_state()
     iteration = state["iteration"]
+    features_completed = state.get("features_completed", 0)
 
     _log_event({
         "event": "start",
         "session_id": state["session_id"],
         "iteration": iteration,
+        "features_completed": features_completed,
         "auth": "worker=subscription (via Claude CLI OAuth), classifier/responder=ANTHROPIC_API_KEY",
     })
 
@@ -98,11 +101,24 @@ async def run() -> None:
                 "iteration": iteration,
                 "last_classification": classification["state"],
                 "last_updated": _now_iso(),
+                "features_completed": features_completed,
             })
             save_state(state)
 
             if classification["state"] == "feature_complete":
-                # Reset counter for the next feature. Re-feed instructions.
+                features_completed += 1
+                state["features_completed"] = features_completed
+                save_state(state)
+                _log_event({"event": "feature_complete", "features_completed": features_completed})
+
+                if features_completed >= FEATURE_CAP:
+                    _log_event({
+                        "event": "feature_cap_reached",
+                        "message": f"Run complete: {features_completed}/{FEATURE_CAP} features delivered. Halting cleanly.",
+                    })
+                    return
+
+                # Reset per-feature iteration counter, re-feed instructions for the next feature.
                 iteration = 0
                 state["iteration"] = 0
                 save_state(state)

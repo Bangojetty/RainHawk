@@ -21,14 +21,16 @@ WORKER_MODEL = "claude-opus-4-7"
 
 
 def load_state() -> dict:
-    if STATE_FILE.exists():
-        return json.loads(STATE_FILE.read_text())
-    return {
+    default = {
         "session_id": None,
         "iteration": 0,
+        "features_completed": 0,
         "last_classification": None,
         "last_updated": None,
     }
+    if STATE_FILE.exists():
+        return {**default, **json.loads(STATE_FILE.read_text())}
+    return default
 
 
 def save_state(state: dict) -> None:
