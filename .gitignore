@@ -1,6 +1,9 @@
 # Logs — per PRD: never read back into Claude context
 logs/
 
+# Daemon process state (frontend uses this to detect a running daemon)
+.daemon.pid
+
 # Secrets
 .env
 .env.*

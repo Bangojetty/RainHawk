@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RainHawk — Control Panel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --rh-bg-1: #0b0e1a;
+    --rh-bg-2: #1a1740;
+    --rh-bg-3: #2a1854;
+    --rh-gold: #f6c84c;
+    --rh-gold-dim: #b88a2a;
+    --rh-cyan: #5fd1ff;
+    --rh-storm: #6b78c4;
+    --rh-danger: #d2492a;
+  }
+  body {
+    background:
+      radial-gradient(ellipse at top, rgba(95, 209, 255, 0.08) 0%, transparent 60%),
+      linear-gradient(180deg, var(--rh-bg-1) 0%, var(--rh-bg-2) 50%, var(--rh-bg-3) 100%);
+    min-height: 100vh;
+    color: #e5e7eb;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .pixel { font-family: 'Courier New', 'Consolas', monospace; letter-spacing: 0.05em; }
+  .panel {
+    background: rgba(11, 14, 26, 0.7);
+    border: 1px solid rgba(246, 200, 76, 0.25);
+    box-shadow: 0 0 24px rgba(95, 209, 255, 0.05), inset 0 1px 0 rgba(246, 200, 76, 0.08);
+    backdrop-filter: blur(6px);
+  }
+  .gold { color: var(--rh-gold); }
+  .gold-bg { background-color: var(--rh-gold); color: #1a1740; }
+  .cyan { color: var(--rh-cyan); }
+  .storm-border { border-color: rgba(107, 120, 196, 0.4); }
+  .gold-border { border-color: rgba(246, 200, 76, 0.5); }
+  .pulse-running { animation: rh-pulse 1.4s ease-in-out infinite; }
+  @keyframes rh-pulse {
+    0%, 100% { box-shadow: 0 0 8px var(--rh-cyan), 0 0 16px var(--rh-cyan); }
+    50%      { box-shadow: 0 0 16px var(--rh-cyan), 0 0 32px var(--rh-cyan); }
+  }
+  .rain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(180deg, transparent 0%, transparent 40%, rgba(95, 209, 255, 0.04) 100%);
+  }
+  .scanline {
+    background: repeating-linear-gradient(
+      0deg, transparent 0px, transparent 2px, rgba(0, 0, 0, 0.08) 2px, rgba(0, 0, 0, 0.08) 4px
+    );
+  }
+  .event-row { transition: background-color 0.3s ease; border-left: 2px solid transparent; }
+  .event-row:hover { background-color: rgba(246, 200, 76, 0.05); }
+  .event-start            { border-left-color: var(--rh-cyan); }
+  .event-turn             { border-left-color: var(--rh-storm); }
+  .event-classify         { border-left-color: var(--rh-gold); }
+  .event-respond          { border-left-color: #c084fc; }
+  .event-feature_complete { border-left-color: #4ade80; }
+  .event-feature_complete_reset { border-left-color: #4ade80; }
+  .event-feature_cap_reached    { border-left-color: var(--rh-gold); }
+  .event-cap_trip         { border-left-color: var(--rh-danger); }
+  button.gold-btn {
+    background: linear-gradient(180deg, var(--rh-gold) 0%, var(--rh-gold-dim) 100%);
+    color: #1a1740;
+    border: 1px solid var(--rh-gold);
+    box-shadow: 0 0 12px rgba(246, 200, 76, 0.3);
+  }
+  button.gold-btn:hover:not(:disabled) {
+    box-shadow: 0 0 18px rgba(246, 200, 76, 0.55);
+    filter: brightness(1.1);
+  }
+  button.danger-btn {
+    background: linear-gradient(180deg, #d2492a 0%, #8a2818 100%);
+    color: #fef3c7;
+    border: 1px solid #d2492a;
+    box-shadow: 0 0 10px rgba(210, 73, 42, 0.25);
+  }
+  button.danger-btn:hover:not(:disabled) {
+    box-shadow: 0 0 16px rgba(210, 73, 42, 0.5);
+    filter: brightness(1.1);
+  }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .modal-bg { background: rgba(11, 14, 26, 0.85); backdrop-filter: blur(8px); }
+  pre { white-space: pre-wrap; word-wrap: break-word; }
+</style>
+</head>
+<body class="relative overflow-x-hidden">
+<div class="rain scanline"></div>
+
+<main class="relative z-10 max-w-6xl mx-auto p-6 space-y-6">
+
+  <!-- Header -->
+  <header class="flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <!-- Stylized hawk silhouette -->
+      <svg width="56" height="56" viewBox="0 0 64 64" class="drop-shadow" aria-hidden="true">
+        <defs>
+          <linearGradient id="hawkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#f6c84c"/>
+            <stop offset="100%" stop-color="#b88a2a"/>
+          </linearGradient>
+        </defs>
+        <!-- body -->
+        <path d="M32 10 L18 28 L8 30 L20 34 L14 46 L26 40 L32 54 L38 40 L50 46 L44 34 L56 30 L46 28 Z"
+              fill="url(#hawkGrad)" stroke="#1a1740" stroke-width="1.5" stroke-linejoin="round"/>
+        <!-- eye -->
+        <circle cx="32" cy="22" r="2" fill="#1a1740"/>
+        <!-- beak hint -->
+        <path d="M30 24 L32 28 L34 24 Z" fill="#1a1740"/>
+      </svg>
+      <div>
+        <h1 class="text-3xl font-bold gold pixel tracking-wider">RAINHAWK</h1>
+        <p class="text-xs text-slate-400 pixel uppercase tracking-widest">autonomous experiment harness · control panel</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="status-dot" class="w-3 h-3 rounded-full bg-slate-600"></span>
+      <span id="status-text" class="pixel text-sm uppercase tracking-widest text-slate-400">STOPPED</span>
+    </div>
+  </header>
+
+  <!-- Stat tiles -->
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="panel rounded-lg p-4">
+      <div class="text-xs uppercase tracking-widest text-slate-400 pixel">Features completed</div>
+      <div class="mt-1 text-3xl font-bold gold pixel"><span id="features-completed">0</span><span class="text-slate-500 text-lg"> / 20</span></div>
+    </div>
+    <div class="panel rounded-lg p-4">
+      <div class="text-xs uppercase tracking-widest text-slate-400 pixel">Iteration</div>
+      <div class="mt-1 text-3xl font-bold cyan pixel"><span id="iteration">0</span><span class="text-slate-500 text-lg"> / 20</span></div>
+    </div>
+    <div class="panel rounded-lg p-4">
+      <div class="text-xs uppercase tracking-widest text-slate-400 pixel">Last classification</div>
+      <div class="mt-1 text-xl font-bold pixel uppercase" id="last-classification">—</div>
+    </div>
+    <div class="panel rounded-lg p-4">
+      <div class="text-xs uppercase tracking-widest text-slate-400 pixel">Current project</div>
+      <div class="mt-1 text-xl font-bold gold pixel" id="current-project">—</div>
+    </div>
+  </section>
+
+  <!-- Controls -->
+  <section class="panel rounded-lg p-4 flex flex-wrap items-center gap-4">
+    <button id="btn-start" class="gold-btn px-6 py-3 rounded font-bold pixel uppercase tracking-wider text-sm">
+      Start Daemon
+    </button>
+    <button id="btn-stop" class="danger-btn px-6 py-3 rounded font-bold pixel uppercase tracking-wider text-sm">
+      Stop Daemon
+    </button>
+    <div class="flex-1"></div>
+    <div class="text-xs text-slate-400 pixel">
+      <span class="text-slate-500">PID:</span> <span id="pid" class="cyan">—</span>
+      <span class="mx-2">·</span>
+      <span class="text-slate-500">SESSION:</span> <span id="session-id" class="cyan break-all">—</span>
+    </div>
+  </section>
+
+  <!-- Event stream -->
+  <section class="panel rounded-lg overflow-hidden">
+    <div class="px-4 py-2 border-b storm-border bg-slate-900/40 flex items-center justify-between">
+      <h2 class="pixel uppercase tracking-widest text-sm gold">Event stream</h2>
+      <span class="text-xs text-slate-500 pixel" id="event-count">0 events</span>
+    </div>
+    <div id="events" class="max-h-[28rem] overflow-y-auto font-mono text-xs">
+      <div class="px-4 py-8 text-center text-slate-500 pixel" id="events-placeholder">awaiting events…</div>
+    </div>
+  </section>
+
+  <!-- Featuresums -->
+  <section class="panel rounded-lg overflow-hidden">
+    <div class="px-4 py-2 border-b storm-border bg-slate-900/40 flex items-center justify-between">
+      <h2 class="pixel uppercase tracking-widest text-sm gold">Completed features</h2>
+      <span class="text-xs text-slate-500 pixel" id="featuresum-count">0</span>
+    </div>
+    <ul id="featuresums" class="divide-y storm-border">
+      <li class="px-4 py-6 text-center text-slate-500 pixel">no completed features yet</li>
+    </ul>
+  </section>
+
+</main>
+
+<!-- Featuresum modal -->
+<div id="modal" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-4">
+  <div class="panel rounded-lg max-w-3xl w-full max-h-[85vh] flex flex-col">
+    <div class="flex items-center justify-between px-4 py-2 border-b gold-border">
+      <h3 id="modal-title" class="pixel uppercase tracking-widest text-sm gold"></h3>
+      <button id="modal-close" class="text-slate-400 hover:text-slate-100 pixel text-lg">×</button>
+    </div>
+    <div id="modal-content" class="overflow-y-auto p-4 text-sm leading-relaxed font-mono"></div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+// --- status polling
+async function refreshStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const data = await r.json();
+    const running = data.daemon.running;
+    $('status-dot').className = 'w-3 h-3 rounded-full ' + (running ? 'bg-cyan-400 pulse-running' : 'bg-slate-600');
+    $('status-text').textContent = running ? 'RUNNING' : 'STOPPED';
+    $('status-text').className = 'pixel text-sm uppercase tracking-widest ' + (running ? 'cyan' : 'text-slate-400');
+    $('btn-start').disabled = running;
+    $('btn-stop').disabled = !running;
+
+    const s = data.state || {};
+    $('features-completed').textContent = s.features_completed ?? 0;
+    $('iteration').textContent = s.iteration ?? 0;
+    $('last-classification').textContent = (s.last_classification || '—').toUpperCase();
+    $('current-project').textContent = data.current_project || '—';
+    $('pid').textContent = data.daemon.pid || '—';
+    $('session-id').textContent = s.session_id ? (s.session_id.slice(0, 8) + '…') : '—';
+
+    // colour the classification
+    const cls = s.last_classification;
+    const classNode = $('last-classification');
+    classNode.classList.remove('gold', 'cyan', 'text-emerald-400', 'text-rose-400', 'text-slate-400');
+    if (cls === 'feature_complete')      classNode.classList.add('text-emerald-400');
+    else if (cls === 'in_progress')      classNode.classList.add('cyan');
+    else if (cls === 'needs_input')      classNode.classList.add('gold');
+    else                                  classNode.classList.add('text-slate-400');
+  } catch (e) {
+    console.error('status fetch failed', e);
+  }
+}
+
+// --- start / stop
+$('btn-start').addEventListener('click', async () => {
+  $('btn-start').disabled = true;
+  try {
+    const r = await fetch('/api/start', { method: 'POST' });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      alert('Start failed: ' + (err.detail || r.statusText));
+    }
+  } catch (e) {
+    alert('Start failed: ' + e.message);
+  }
+  setTimeout(refreshStatus, 500);
+});
+
+$('btn-stop').addEventListener('click', async () => {
+  if (!confirm('Stop the daemon? Any in-progress feature will be cut off mid-build.')) return;
+  $('btn-stop').disabled = true;
+  try {
+    await fetch('/api/stop', { method: 'POST' });
+  } catch (e) {
+    alert('Stop failed: ' + e.message);
+  }
+  setTimeout(refreshStatus, 500);
+});
+
+// --- event stream
+let eventCount = 0;
+function fmtTimestamp(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString();
+  } catch { return iso; }
+}
+
+function appendEvent(raw) {
+  let payload;
+  try { payload = JSON.parse(raw); } catch { return; }
+
+  if (eventCount === 0) $('events-placeholder')?.remove();
+  eventCount += 1;
+  $('event-count').textContent = `${eventCount} event${eventCount === 1 ? '' : 's'}`;
+
+  const evType = payload.event || 'unknown';
+  const ts = fmtTimestamp(payload.ts);
+  const { ts: _ts, event: _ev, ...rest } = payload;
+
+  const row = document.createElement('div');
+  row.className = `event-row event-${evType} px-4 py-2 border-b storm-border`;
+  row.innerHTML = `
+    <div class="flex items-baseline gap-3">
+      <span class="text-slate-500 text-xs">${ts}</span>
+      <span class="gold uppercase pixel text-xs tracking-wider">${evType}</span>
+    </div>
+    <pre class="text-slate-300 mt-1 text-xs">${escapeHtml(JSON.stringify(rest, null, 0))}</pre>
+  `;
+  const list = $('events');
+  list.insertBefore(row, list.firstChild);
+
+  // keep DOM bounded
+  while (list.children.length > 200) list.removeChild(list.lastChild);
+
+  // refresh status on relevant events
+  if (['feature_complete', 'feature_complete_reset', 'classify', 'turn', 'start'].includes(evType)) {
+    refreshStatus();
+    if (evType === 'feature_complete' || evType === 'feature_complete_reset') {
+      loadFeaturesums();
+    }
+  }
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function startEventStream() {
+  const es = new EventSource('/api/events');
+  es.onmessage = (e) => appendEvent(e.data);
+  es.onerror = () => {
+    // EventSource auto-reconnects; nothing to do.
+  };
+}
+
+// --- featuresums
+async function loadFeaturesums() {
+  try {
+    const r = await fetch('/api/featuresums');
+    const list = await r.json();
+    const ul = $('featuresums');
+    $('featuresum-count').textContent = list.length;
+    if (list.length === 0) {
+      ul.innerHTML = '<li class="px-4 py-6 text-center text-slate-500 pixel">no completed features yet</li>';
+      return;
+    }
+    ul.innerHTML = '';
+    for (const f of list) {
+      const li = document.createElement('li');
+      li.className = 'px-4 py-3 hover:bg-slate-800/40 cursor-pointer flex items-center justify-between';
+      li.innerHTML = `
+        <span class="font-mono text-sm gold">${escapeHtml(f.name)}</span>
+        <span class="text-xs text-slate-500 pixel">${fmtTimestamp(f.modified)}</span>
+      `;
+      li.addEventListener('click', () => openFeaturesum(f.name));
+      ul.appendChild(li);
+    }
+  } catch (e) {
+    console.error('featuresums fetch failed', e);
+  }
+}
+
+async function openFeaturesum(name) {
+  try {
+    const r = await fetch('/api/featuresums/' + encodeURIComponent(name));
+    const data = await r.json();
+    $('modal-title').textContent = data.name;
+    $('modal-content').textContent = data.content;
+    $('modal').classList.remove('hidden');
+  } catch (e) {
+    alert('Failed to load: ' + e.message);
+  }
+}
+$('modal-close').addEventListener('click', () => $('modal').classList.add('hidden'));
+$('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') $('modal').classList.add('hidden'); });
+
+// --- init
+refreshStatus();
+loadFeaturesums();
+startEventStream();
+setInterval(refreshStatus, 5000);
+</script>
+
+</body>
+</html>

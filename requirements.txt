@@ -2,3 +2,5 @@ claude-agent-sdk
 anthropic
 python-dotenv
 twilio
+fastapi
+uvicorn[standard]

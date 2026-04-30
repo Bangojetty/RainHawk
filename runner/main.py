@@ -26,6 +26,7 @@ ITERATION_CAP = 20  # per-feature: SMS + halt if the worker spins this long with
 FEATURE_CAP = 20    # per-run:     clean halt (no SMS) after this many features completed
 INSTRUCTIONS_PATH = REPO_ROOT / "instructions.md"
 LOG_DIR = REPO_ROOT / "logs"
+PID_FILE = REPO_ROOT / ".daemon.pid"
 
 
 def _now_iso() -> str:
@@ -136,7 +137,11 @@ async def run() -> None:
 
 
 def main() -> None:
-    asyncio.run(run())
+    PID_FILE.write_text(str(os.getpid()))
+    try:
+        asyncio.run(run())
+    finally:
+        PID_FILE.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
