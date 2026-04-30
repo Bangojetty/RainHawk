@@ -71,7 +71,7 @@ The following files define the experimental harness. They are **read-only to you
 - `instructions.md` (this file)
 - `runner/prompts.py` and any other file under `runner/` that defines harness behavior
 - `scripts/pick_words.py`, `scripts/words.txt`, and any other file under `scripts/` (the harness's deterministic-randomness tools)
-- `PRD.md`, `next-steps.md`, `index.md`, `CLAUDE.md`, `README.md`
+- `PRD.md`, `next-steps.md`, `index.md`, `CLAUDE.md`, `README.md`, `run.bat`, `run.sh`
 - `rainhawk-state.json`, `rainhawk-state.md` (the daemon owns these)
 - `.env`, `.env.example`, `.gitignore`
 
