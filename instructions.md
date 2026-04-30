@@ -2,12 +2,12 @@
 
 Index: [[index]]
 
-> **Active strategy:** `random-web-inspiration` (v1)
+> **Active strategy:** `random-dictionary-words` (v1)
 > **Sentinel:** `[[RAINHAWK::FEATURE_COMPLETE]]` — emit on its own line in your final response, only after tests pass and the summary is on disk.
 
 ## Goal
 
-Build one self-contained feature, end-to-end. You pick the feature by deriving inspiration from a random web crawl. The point of the exercise is the *process* — your planning, debugging, and self-documentation under autonomy — not the feature itself.
+Build one self-contained feature, end-to-end. You pick the feature by drawing three random words from a fixed source dictionary and synthesizing an idea from them. The point of the exercise is the *process* — your planning, debugging, and self-documentation under autonomy — not the feature itself.
 
 ## Workspace conventions
 
@@ -16,7 +16,7 @@ RainHawk hosts **multiple applications**. Each application is its own project un
 - **Project directory:** `projects/<project-slug>/` — the base application. `<project-slug>` is short, kebab-case, and stable across all features for that app. The application's source code lives directly in this directory (and its own subdirectories — e.g. `src/`, `tests/`).
 - **Project-wide notebook:** `projects/<project-slug>/vault/` — cross-feature notes, conventions, charter, and decisions that span the whole application.
 - **Per-feature directory:** `projects/<project-slug>/<feature-slug>/` — created fresh for each feature. Holds the feature's working files only (notes, plan, log). Does **not** hold application code; that goes in the project directory.
-  - `inspiration.md` — random query, search results, captured sentences
+  - `inspiration.md` — the three drawn words and how they shaped the idea
   - `feature-idea.md` — synthesized idea + rationale
   - `plan.md` — implementation plan
   - `problem-log.md` — append-only log of bugs/roadblocks
@@ -25,31 +25,28 @@ RainHawk hosts **multiple applications**. Each application is its own project un
 
 ## Procedure
 
-1. **Random query.** Invent a single random sentence — genuinely random, not topical, not biased toward any domain. Use the WebSearch tool with that sentence as the query. Save the exact query and the search-result list to the per-feature directory's `inspiration.md` (path: `projects/<project-slug>/<feature-slug>/inspiration.md`). Create the per-feature directory now if you already know which project this belongs to; otherwise create it after step 3.
+1. **Draw three words.** Run `python scripts/pick_words.py` exactly once. The script prints three random words from the fixed source dictionary (`scripts/words.txt`, the EFF large diceware list, 7776 entries), one per line. Capture them verbatim. Do not run the script more than once; do not invent your own words; do not pick from elsewhere. The whole point is that the seed is mechanically random and reproducible-on-record, not curated by you.
 
-2. **Crawl one result.** Pick one URL from the results (record which and why). Fetch it. From that page, capture 3–6 sentences sampled from across its length — not just the intro. Append the sentences and the URL to `inspiration.md`.
-
-3. **Synthesize and place.** From those captured sentences, design one concrete feature. Then decide where it goes:
-   - **Existing project:** if the idea clearly fits an application already under `projects/`, use that project's slug. Create `projects/<project-slug>/<feature-slug>/` and move/write `inspiration.md` there if it isn't already.
+2. **Synthesize and place.** From those three words, design one concrete feature. The connection can be literal, metaphorical, or oblique — but it must be traceable back to the words. Then decide where the feature goes:
+   - **Existing project:** if the idea clearly fits an application already under `projects/`, use that project's slug. Create `projects/<project-slug>/<feature-slug>/`.
    - **New project:** if the idea doesn't fit any existing project, create a new one. Make `projects/<project-slug>/` (the application root) **and** `projects/<project-slug>/vault/` (project-wide notebook) **and** `projects/<project-slug>/<feature-slug>/` (this feature's directory). Decide the minimum base application needed to make the feature meaningful and document that scope in `projects/<project-slug>/vault/project-charter.md` — one short paragraph: what the application is, what's in scope, what's out.
 
-   Either way, write the feature idea (one paragraph, plain English, no implementation details) and the rationale tying it back to the captured sentences to `projects/<project-slug>/<feature-slug>/feature-idea.md`.
+   Either way, write the three drawn words and the rationale linking them to the feature idea to `projects/<project-slug>/<feature-slug>/inspiration.md`. Then write the feature idea (one paragraph, plain English, no implementation details) to `projects/<project-slug>/<feature-slug>/feature-idea.md`.
 
-4. **Plan.** Write an implementation plan to `projects/<project-slug>/<feature-slug>/plan.md`. Include: components, files in the project root that you'll create or modify, test strategy, and explicit acceptance criteria. Keep it tight — this is not a PRD.
+3. **Plan.** Write an implementation plan to `projects/<project-slug>/<feature-slug>/plan.md`. Include: components, files in the project root that you'll create or modify, test strategy, and explicit acceptance criteria. Keep it tight — this is not a PRD.
 
-5. **Implement.** Build the feature in the **project root** (`projects/<project-slug>/`), not the per-feature directory. The per-feature directory is for meta only. Whenever you hit a problem, bug, or roadblock — *whether or not you resolve it immediately* — append an entry to `projects/<project-slug>/<feature-slug>/problem-log.md` with: timestamp, what happened, what you tried, what worked. Then fix it and continue. The log is non-optional; it is the experimental data this whole exercise produces.
+4. **Implement.** Build the feature in the **project root** (`projects/<project-slug>/`), not the per-feature directory. The per-feature directory is for meta only. Whenever you hit a problem, bug, or roadblock — *whether or not you resolve it immediately* — append an entry to `projects/<project-slug>/<feature-slug>/problem-log.md` with: timestamp, what happened, what you tried, what worked. Then fix it and continue. The log is non-optional; it is the experimental data this whole exercise produces.
 
-6. **Test.** Once you believe the feature is functionally complete, write and run a comprehensive test suite (unit tests at minimum; integration tests where they make sense). Tests live under the project, e.g. `projects/<project-slug>/tests/`. All tests must pass. If a test exposes a bug, treat it like step 5: log, fix, re-run.
+5. **Test.** Once you believe the feature is functionally complete, write and run a comprehensive test suite (unit tests at minimum; integration tests where they make sense). Tests live under the project, e.g. `projects/<project-slug>/tests/`. All tests must pass. If a test exposes a bug, treat it like step 4: log, fix, re-run.
 
-7. **Summarize.** Write `featuresum/<project-slug>__<feature-slug>.md` containing:
-   - The random query and source URL
-   - The captured sentences
-   - The synthesized feature idea
+6. **Summarize.** Write `featuresum/<project-slug>__<feature-slug>.md` containing:
+   - The three drawn words
+   - The synthesized feature idea and its link back to the words
    - What you actually built (files, key design choices)
    - Test results (pass/fail counts)
    - A brief retrospective: what went well, what was hard, what you'd do differently
 
-8. **Signal completion.** In your final response — only after step 7 is fully written to disk and tests are green — emit on its own line:
+7. **Signal completion.** In your final response — only after step 6 is fully written to disk and tests are green — emit on its own line:
 
    ```
    [[RAINHAWK::FEATURE_COMPLETE]]
@@ -63,6 +60,7 @@ The following files define the experimental harness. They are **read-only to you
 
 - `instructions.md` (this file)
 - `runner/prompts.py` and any other file under `runner/` that defines harness behavior
+- `scripts/pick_words.py`, `scripts/words.txt`, and any other file under `scripts/` (the harness's deterministic-randomness tools)
 - `PRD.md`, `next-steps.md`, `index.md`, `CLAUDE.md`, `README.md`
 - `rainhawk-state.json`, `rainhawk-state.md` (the daemon owns these)
 - `.env`, `.env.example`, `.gitignore`
