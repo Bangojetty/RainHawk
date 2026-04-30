@@ -11,11 +11,11 @@ CLASSIFIER_MODEL = "claude-haiku-4-5-20251001"
 SENTINEL = "[[RAINHAWK::FEATURE_COMPLETE]]"
 
 
-def classify(worker_text: str) -> dict:
+def classify(worker_text: str, api_key: str) -> dict:
     if SENTINEL in worker_text:
         return {"state": "feature_complete", "questions": []}
 
-    client = Anthropic()
+    client = Anthropic(api_key=api_key)
     resp = client.messages.create(
         model=CLASSIFIER_MODEL,
         max_tokens=512,

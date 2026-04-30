@@ -8,7 +8,7 @@ from runner.prompts import RESPONDER_SYSTEM_PROMPT
 RESPONDER_MODEL = "claude-sonnet-4-6"
 
 
-def draft_reply(questions: list[str], instructions_text: str) -> str:
+def draft_reply(questions: list[str], instructions_text: str, api_key: str) -> str:
     if not questions:
         return "Continue with your work."
 
@@ -21,7 +21,7 @@ def draft_reply(questions: list[str], instructions_text: str) -> str:
         "Draft the worker's next user-turn reply."
     )
 
-    client = Anthropic()
+    client = Anthropic(api_key=api_key)
     resp = client.messages.create(
         model=RESPONDER_MODEL,
         max_tokens=1024,

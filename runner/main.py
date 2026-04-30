@@ -41,14 +41,25 @@ def _log_event(event: dict) -> None:
 
 async def run() -> None:
     load_dotenv(REPO_ROOT / ".env")
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    # Pop the API key out of the process env before the SDK spawns its CLI
+    # subprocess. The CLI prefers ANTHROPIC_API_KEY over OAuth/keychain when
+    # it sees one (per `claude --bare` docs), so to make the worker use the
+    # Claude subscription we must hide the key from the subprocess.
+    # Classifier and responder still need it; we pass it explicitly to them.
+    api_key = os.environ.pop("ANTHROPIC_API_KEY", None)
+    if not api_key:
         sys.exit("ANTHROPIC_API_KEY not set in environment or .env")
 
     instructions = INSTRUCTIONS_PATH.read_text(encoding="utf-8")
     state = load_state()
     iteration = state["iteration"]
 
-    _log_event({"event": "start", "session_id": state["session_id"], "iteration": iteration})
+    _log_event({
+        "event": "start",
+        "session_id": state["session_id"],
+        "iteration": iteration,
+        "auth": "worker=subscription (via Claude CLI OAuth), classifier/responder=ANTHROPIC_API_KEY",
+    })
 
     client = make_client(state["session_id"])
     async with client:
@@ -78,7 +89,7 @@ async def run() -> None:
                 "worker_text_len": len(worker_text),
             })
 
-            classification = classify(worker_text)
+            classification = classify(worker_text, api_key)
             _log_event({"event": "classify", "result": classification})
 
             iteration += 1
@@ -101,6 +112,7 @@ async def run() -> None:
                 next_prompt = draft_reply(
                     classification.get("questions") or [],
                     instructions,
+                    api_key,
                 )
                 _log_event({"event": "respond", "reply_len": len(next_prompt)})
             else:  # in_progress
